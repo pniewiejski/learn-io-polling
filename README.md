@@ -25,8 +25,8 @@ OK... so there is something like `epoll`, but what the heck is `kqueue` or `IOCP
 **libuv supports many platforms.** `epoll` itself is a Linux-only feature. BSD uses `kqueue` and
 Windows IOCP.
 
-**So if you want to understand how node.js works internally and you are a Linux user, you need to
-learn about `epoll`.**
+**So if you wish to understand how node.js works internally and you are a Linux enthusiast, you need
+to learn about `epoll`.**
 
 ## So what is epoll?
 
@@ -44,12 +44,12 @@ possible on any of them. Reading further we find that:
 
 Ok. So from the programmer perspective, `epoll` can work in two ways: **edge-triggered** or a
 **level-triggered** interface. This will become important later on. We also get information that it
-scales well. Spoiler alert ⚠️ - when it comes to monitoring large number of file descriptors,
+_"scales well"_. Spoiler alert ⚠️ - when it comes to monitoring large number of file descriptors,
 `epoll` will perform much better than `poll(2)` or `select(2)`.
 
 ## API
 
-To use `epoll` remember to include the `<sys/epoll.h>` header.
+In order to use `epoll` API, remember to include the `<sys/epoll.h>` header.
 
 #### `epoll_create` and `epoll_create1`
 
@@ -246,7 +246,7 @@ also prevent the so called **file descriptor starvation**.
 Also, check the `epoll(7)` manpage. There is a **very good** use-case example which describes the
 difference.
 
-## Why is epoll better than poll or select?
+## Why epoll is better than poll or select?
 
 **The computational complexity of poll and select is O(N), where N is the number of file descriptors
 to be monitored.** Each time you call `poll(2)` or `select(2)` the kernel has to check every file
