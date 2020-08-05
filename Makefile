@@ -1,4 +1,5 @@
 CC = gcc
+CCVERSION = $(shell $(CC) -dumpversion)
 CFLAGS = -Wall -Werror
 
 # Define all C source files using Make wildcard funciton
@@ -18,6 +19,7 @@ EXEC := $(SOURCES:.c=)
 all: $(EXEC)
 
 %: %.c
+	$(info Using $(CC) version: $(CCVERSION))
 	$(CC) $(CFLAGS) -o $@ $<
 
 .PHONY: clean
