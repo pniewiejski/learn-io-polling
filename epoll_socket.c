@@ -15,7 +15,7 @@
 
 int print_call_result(int code, const char* call) {
     if (code < 0) { /* error */
-        fprintf(stderr, call);
+        fputs(call, stderr);
         fprintf(stderr, "\tError: %s\n", strerror(errno));
         abort(); /* send SIGABRT to the process */
     }
