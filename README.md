@@ -1,4 +1,5 @@
 # Learn about I/O polling in Linux and what makes node.js scale well
+![C build](https://github.com/pniewiejski/learn-io-polling/workflows/C%20build/badge.svg)
 
 ## Goal 🏁
 
