@@ -1,8 +1,7 @@
 #include <sys/epoll.h>
 
-#include <netdb.h> /* definitions for network database operations  */
 #include <netinet/in.h> /* Internet address family, see ip(7) and socket(7) */
-#include <sys/socket.h> /* socket */
+#include <sys/socket.h>
 #include <sys/types.h> /* socket, ssize_t, etc. */
 
 #include <unistd.h> /* POSIX close, write, read, pipe */
@@ -11,7 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <errno.h>
 #include <string.h>
 
