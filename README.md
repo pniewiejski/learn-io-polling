@@ -1,4 +1,5 @@
 # Learn about I/O polling in Linux and what makes node.js scale well
+
 ![C build](https://github.com/pniewiejski/learn-io-polling/workflows/C%20build/badge.svg)
 
 ## Goal 🏁
@@ -10,7 +11,7 @@
    data to be read and then writes a response. It should be a similar application to the one
    presented by Sam Roberts (see _#Sources_).
 
-## Why should you care?
+## Why should you care? 🤷‍♂️
 
 I work a lot with node.js. Chances are that you work with node too, or at least used to work with
 it. As you may know, under the hood node uses [libuv](https://github.com/libuv/libuv) to manage it's
@@ -29,7 +30,7 @@ Windows IOCP.
 **So if you wish to understand how node.js works internally and you are a Linux enthusiast, you need
 to learn about `epoll`.**
 
-## So what is epoll?
+## So what is epoll? 🤨
 
 It's difficult to understand how the `epoll` works without first getting a good grasp on the idea of
 _file descriptors_.
@@ -143,7 +144,7 @@ There are a few tricky things about `epoll`.
 
 This is where good understanding of the concept of a _file descriptor_ comes in handy.
 
-### A few words on file descriptors
+### A few words on file descriptors 🔬
 
 When we think about file descriptors we usually think about some abstract handle that we use to
 access a file (or a pipe, socket, etc.). And this already is a good intuition. It is something
@@ -247,7 +248,9 @@ also prevent the so called **file descriptor starvation**.
 Also, check the `epoll(7)` manpage. There is a **very good** use-case example which describes the
 difference.
 
-## Why epoll is better than poll or select?
+## Is epoll better than poll or select? 🤔
+
+**TLDR;** Yes, it is.
 
 **The computational complexity of poll and select is O(N), where N is the number of file descriptors
 to be monitored.** Each time you call `poll(2)` or `select(2)` the kernel has to check every file
