@@ -1,4 +1,4 @@
-# Learn about I/O polling in Linux and what makes node.js scale well
+# Learn about I/O polling on Linux
 
 ![C build](https://github.com/pniewiejski/learn-io-polling/workflows/C%20build/badge.svg)
 
@@ -13,10 +13,10 @@
 
 ## Why should you care? 🤷‍♂️
 
-I work a lot with node.js. Chances are that you work with node too, or at least used to work with
-it. As you may know, under the hood node uses [libuv](https://github.com/libuv/libuv) to manage it's
-asynchronous I/O operations. On the libuv homepage, we may find the list of libuv's key features.
-One of them is:
+I work a lot with **Node.js**. Chances are that you work with node too, or at least used to work
+with it. As you may know, under the hood node uses [libuv](https://github.com/libuv/libuv) to manage
+it's asynchronous I/O operations. It's just one of those things that make node tick. On the `libuv`
+homepage, we may find the list of libuv's key features. One of them is:
 
 > Full-featured event loop backed by epoll, kqueue, IOCP, event ports.
 
@@ -25,14 +25,17 @@ OK... so there is something like `epoll`, but what the heck is `kqueue` or `IOCP
 > libuv is a multi-platform support library with a focus on asynchronous I/O.
 
 **libuv supports many platforms.** `epoll` itself is a Linux-only feature. BSD uses `kqueue` and
-Windows IOCP.
+Windows `IOCP`.
 
 **So if you wish to understand how node.js works internally and you are a Linux enthusiast, you need
 to learn about `epoll`.**
 
 ## So what is epoll? 🤨
 
-It's difficult to understand how the `epoll` works without first getting a good grasp on the idea of
+If you're looking for a one-sentence explanation then you can think about `epoll` as of a Linux
+kernel system call which allows to manage I/O operations based on an event notification mechanism.
+
+It's difficult to understand how the `epoll` works without first getting a good grasp of the idea of
 _file descriptors_.
 
 A good way to begin the adventure with epoll is to simply read the docs. Manpage for `epoll`
@@ -132,7 +135,7 @@ mediately even if there aren't any events available.
 It is worth to point out that the `data` field of the `epoll_event` will have the same data that was
 set with `epoll_ctl`.
 
-In case of success `epoll_wait` will return the number of file descriptors ready for requested I/O
+In case of success, `epoll_wait` will return the number of file descriptors ready for requested I/O
 operation. (👉 Remember that in `epoll_event` we had to specify what typo of I/O are we interested
 in.) In case of an error the value of -1 is returned.
 
@@ -146,7 +149,7 @@ This is where good understanding of the concept of a _file descriptor_ comes in 
 
 ### A few words on file descriptors 🔬
 
-When we think about file descriptors we usually think about some abstract handle that we use to
+When we think about file descriptors, we usually think about some abstract handle that we use to
 access a file (or a pipe, socket, etc.). And this already is a good intuition. It is something
 _abstract_. Physically its a non-negative integer, generally represented as `int` type. Usually when
 created (eg. by a `open(2)` syscall) it will be the lowest (lowest number) file descriptor not
@@ -162,14 +165,14 @@ This is very important for a few reasons. For instance, when file's path is remo
 to refer to a different file) it does not affect the _file descriptor_ - _file description_
 reference.
 
-Keep in mind that many file descriptors can point to a single file description. This is for instance
-when a file descriptor is duplicated using a `dup(2)` syscall. The duplicated file descriptor refers
-to the same open file description. As a consequence, both file descriptors will share the file's
-offset and status flags. The same behavior can be observed between two processes. A child process
-created with `fork(2)` will inherit duplicates of the parent's file descriptors. **This means that
-child's file descriptors will refer to the same file descriptions as patent's file descriptors.**
-This is why sometimes we want to mark our file descriptors with `O_CLOEXEC` flag, so that file
-descriptors are closed once a forked process execs.
+Keep in mind that **many file descriptors can point to a single file description**. This is for
+instance when a file descriptor is duplicated using a `dup(2)` syscall. The duplicated file
+descriptor refers to the same open file description. As a consequence, both file descriptors will
+share the file's offset and status flags. The same behavior can be observed between two processes. A
+child process created with `fork(2)` will inherit duplicates of the parent's file descriptors.
+**This means that child's file descriptors will refer to the same file descriptions as patent's file
+descriptors.** This is why sometimes we want to mark our file descriptors with `O_CLOEXEC` flag, so
+that file descriptors are closed once a forked process execs.
 
 Note that each time we call `open(2)` a new file description is created. **This means that there can
 be many file descriptions pointing to the same inode.**
@@ -191,8 +194,8 @@ point).
 - After `exec(2)` when the descriptor is marked with `O_CLOEXEC` (close on exec)
 
 🔥 Now time for the bombshell - **`epoll` does not track the per-process file descriptors. Instead
-it tracks the underlying file description**. This has a important consequence which was described in
-the `epoll(7)` manpage as follows:
+it tracks the underlying file description**. This has an important consequence. I think it was best
+explained in `epoll(7)` manual:
 
 > Will closing a file descriptor cause it to be removed from all epoll sets automatically?
 >
@@ -228,12 +231,12 @@ In a nutshell the difference can be boiled down to:
 
 With level-triggering we can always check for a file descriptors readiness, whereas with
 edge-triggering there has to be a _"change"_ (_edge_). Because of that we can repeat the
-level-triggered check calls many times. The reason might be that we do not want to read all the
-available data at once but in smaller chunks. The edge-triggered notification model discourages us
-from such approach. In fact, we might be encouraged to do "as much I/O as possible" whenever the
-notification comes.
+level-triggered check calls many times. The reason for such approach might be that we do not want to
+read all the available data at once, but in smaller chunks. The edge-triggered notification model
+discourages us from such approach. In fact, we might be encouraged to do "as much I/O as possible"
+whenever the notification comes.
 
-It easiest to see the difference on an example. Imagine that we're monitoring a socket file
+It is the easiest to see the difference on an example. Imagine that we're monitoring a socket file
 descriptor. Some input data arrives on the socket. We call `epoll_wait`. Then we call `epoll_wait`
 again. On the first call we will get the information that the socket file descriptor is ready
 regardless of whether the level-triggering or edge-triggering was used. However, on the second call
@@ -250,7 +253,7 @@ difference.
 
 ## Is epoll better than poll or select? 🤔
 
-**TLDR;** Yes, it is.
+**TLDR;** Yes, it is. But it ain't perfect either.
 
 **The computational complexity of poll and select is O(N), where N is the number of file descriptors
 to be monitored.** Each time you call `poll(2)` or `select(2)` the kernel has to check every file
@@ -282,3 +285,8 @@ This repo is inspired by a number of other (much better) sources:
 - Awesome articles on Medium by Cindy Sridharan -
   [Nonblocking I/O](https://medium.com/@copyconstruct/nonblocking-i-o-99948ad7c957) and
   [The method to epoll madness](https://medium.com/@copyconstruct/the-method-to-epolls-madness-d9d2d6378642)
+- [A brief history of select(2)](https://idea.popcount.org/2016-11-01-a-brief-history-of-select2/)
+- [Select is fundamentally broken](https://idea.popcount.org/2017-01-06-select-is-fundamentally-broken/)
+- Epoll is fundamentally broken
+  [part 1](https://idea.popcount.org/2017-02-20-epoll-is-fundamentally-broken-12/) and
+  [part 2](https://idea.popcount.org/2017-02-20-epoll-is-fundamentally-broken-12/)
