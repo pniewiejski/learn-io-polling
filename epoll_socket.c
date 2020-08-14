@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
                 event.data.fd = client_sockfd;
                 PRINT_CALL_RESULT(epoll_ctl(epfd, EPOLL_CTL_ADD, client_sockfd, &event));
             } else {
-                printf("Receiving data from a client with socket fd: %d\n", polled_events[i].data.fd);
+                printf("Receiving data from the client with socket fd: %d\n", polled_events[i].data.fd);
 #define RECV_BUFFER_SIZE 1024
                 char buffer[RECV_BUFFER_SIZE];
                 ssize_t recv_buff_len = read(polled_events[i].data.fd, buffer, RECV_BUFFER_SIZE);
