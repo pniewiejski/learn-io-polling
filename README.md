@@ -274,6 +274,18 @@ structure in the kernel (in kernel space). Once such data structure is created, 
 `epoll_wait` do not have to pass any information about monitored file descriptors to the kernel.
 Also, kernel returns information only about file descriptors that are ready.
 
+## Example application 👾
+
+In this repo you will find an implementation of a simple "server" built around `socket(2)`. There
+are three implementations - using `poll(2)`, `select(2)`, and `epoll(7)`.
+
+The application is very simple and aims to show the differences in the API. The application creates
+a socket and binds it to the localhost (you have to specify the port number as an argument). Once a
+connection is requested, `accept(2)` is called. When there is data ready to be read on client's
+socket, it is read to a buffer and the server writes a response message.
+
+![application.gif](./docs/application.gif)
+
 ## Sources 📚
 
 This repo is inspired by a number of other (much better) sources:
