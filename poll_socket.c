@@ -62,16 +62,27 @@ int main(int argc, char** argv) {
 
     while (PRINT_CALL_RESULT(poll(fds, OBSERVED_FDS_POLL, -1))) {
         for (int i = 0; i < OBSERVED_FDS_POLL; ++i) {
-            struct pollfd polled_fd = fds[i];
-            if (!(polled_fd.revents & POLLIN)) {
+            struct pollfd* polled_fd = fds + i;
+            if (!(polled_fd->revents & POLLIN)) {
+                if (polled_fd->revents != 0) {
+                    /*
+                     * In this app we're not interested in other events, however if such occurres,
+                     * let's log it to the console. What could be expected here? If for instance,
+                     * we did not handle the client's socket file descriptor properly
+                     * when connection is terminated (i.e. file descriptor has been closed),
+                     * we might the POLLNVAL error. See poll(2) for more information.
+                     */
+                    printf("Event (%d): %d on fd: %d\n", i, polled_fd->revents, polled_fd->fd);
+                }
+
                 /* If reading from a file descriptor is not possible, then do nothing. */
                 continue;
             }
 
-            if (i == 0) {  // the server's socker
+            if (i == 0) { /* the server's socker */
                 printf("Accepting new incoming connection\n");
                 /* polled_fd.fd in this case is quivalet to sockfd */
-                int client_sockfd = PRINT_CALL_RESULT(accept(polled_fd.fd, NULL, NULL));
+                int client_sockfd = PRINT_CALL_RESULT(accept(polled_fd->fd, NULL, NULL));
 
                 /*
                  * Now we'd like to add client's file descriptor to the fds array.
@@ -83,18 +94,19 @@ int main(int argc, char** argv) {
                     ;
                 fds[free_fd_idx].fd = client_sockfd;
             } else {
-                printf("Receiving data from the client with socket fd: %d\n", polled_fd.fd);
+                printf("Receiving data from the client with socket fd: %d\n", polled_fd->fd);
 
                 char buffer[RECV_BUFFER_SIZE];
-                ssize_t recv_buff_len = read(polled_fd.fd, buffer, RECV_BUFFER_SIZE);
+                ssize_t recv_buff_len = read(polled_fd->fd, buffer, sizeof(buffer));
                 if (recv_buff_len > 0) {
                     const char* msg = "Hello stranger! Thanks for the message!\n";
-                    write(polled_fd.fd, msg, strlen(msg) * sizeof(char));
+                    write(polled_fd->fd, msg, strlen(msg) * sizeof(char));
                 }
 
                 if (recv_buff_len < 1) {
-                    printf("Closing connection with client with socket fd: %d\n", polled_fd.fd);
-                    close(polled_fd.fd);
+                    printf("Closing connection with client with socket fd: %d\n", polled_fd->fd);
+                    close(polled_fd->fd);
+                    polled_fd->fd = UNUSED_FD;
                 }
             }
         }
