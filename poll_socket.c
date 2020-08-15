@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            if (i == 0) { /* the server's socker */
+            if (i == 0) { /* the server's socket */
                 printf("Accepting new incoming connection\n");
                 /* polled_fd.fd in this case is quivalet to sockfd */
                 int client_sockfd = PRINT_CALL_RESULT(accept(polled_fd->fd, NULL, NULL));
