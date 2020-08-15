@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
                        polled_events[i].data.fd);
 #define RECV_BUFFER_SIZE 1024
                 char buffer[RECV_BUFFER_SIZE];
-                ssize_t recv_buff_len = read(polled_events[i].data.fd, buffer, RECV_BUFFER_SIZE);
+                ssize_t recv_buff_len = read(polled_events[i].data.fd, buffer, sizeof(buffer));
                 if (recv_buff_len > 0) {
                     const char* msg = "Hello stranger! Thanks for the message!\n";
                     write(polled_events[i].data.fd, msg, strlen(msg) * sizeof(char));
