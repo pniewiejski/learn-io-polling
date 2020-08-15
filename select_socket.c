@@ -9,6 +9,10 @@
 #include <sys/types.h> /* socket, ssize_t, etc. */
 #include <unistd.h>    /* POSIX close, write, read, pipe */
 
+#ifndef FD_COPY /* FD_COPY is not defined on Linux */
+#define FD_COPY(fdset_orig, fdset_copy) memcpy((fdset_copy), (fdset_orig), sizeof * (fdset_copy))
+#endif
+
 int print_call_result(int code, const char* call) {
     if (code < 0) { /* error */
         fputs(call, stderr);
