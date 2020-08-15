@@ -83,6 +83,9 @@ int main(int argc, char** argv) {
                     char buffer[RECV_BUFFER_SIZE];
                     ssize_t recv_buff_len = read(fd, buffer, sizeof(buffer));
                     if (recv_buff_len > 0) {
+                        printf("Received message: ");
+                        fwrite(buffer, recv_buff_len, 1, stdout);
+
                         const char* msg = "Hello stranger! Thanks for the message!\n";
                         write(fd, msg, strlen(msg) * sizeof(char));
                     }
