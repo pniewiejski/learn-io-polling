@@ -11,16 +11,19 @@ CFLAGS = -Wall -Werror
 #    When SRC will be used in target or prerequisite, expansion will take place.
 #    If you want to set SOURCES to its expansion use
 #      SOURCES := $(wildcard *.c)
-SOURCES := $(wildcard *.c)
+SOURCES := $(wildcard *_socket.c)
+COMMON_SOURCES = common.c
 
 # Use Substiturtion Reference to get rid to the .c suffix.
 EXEC := $(SOURCES:.c=)
 
-all: $(EXEC)
+all: $(EXEC), $(COMMON_SOURCES)
+	$(info Build all execs: $(EXEC))
 
 %: %.c
 	$(info Using $(CC) version: $(CCVERSION))
-	$(CC) $(CFLAGS) -o $@ $<
+	$(info Building $@ exec)
+	$(CC) $(CFLAGS) -o $@ $(COMMON_SOURCES) $<
 
 .PHONY: clean
 clean:
