@@ -17,7 +17,7 @@ COMMON_SOURCES = common.c
 # Use Substiturtion Reference to get rid to the .c suffix.
 EXEC := $(SOURCES:.c=)
 
-all: $(EXEC), $(COMMON_SOURCES)
+all: $(EXEC) $(COMMON_SOURCES)
 	$(info Build all execs: $(EXEC))
 
 %: %.c
