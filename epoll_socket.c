@@ -1,27 +1,6 @@
-#include <errno.h>
-#include <netinet/in.h> /* Internet address family, see ip(7) and socket(7) */
-#include <signal.h>     /* signal, sigaction */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/epoll.h>
-#include <sys/socket.h>
-#include <sys/types.h> /* socket, ssize_t, etc. */
-#include <unistd.h>    /* POSIX close, write, read, pipe */
 
-int print_call_result(int code, const char* call) {
-    if (code < 0) { /* error */
-        fputs(call, stderr);
-        fprintf(stderr, "\tError: %s\n", strerror(errno));
-        abort(); /* send SIGABRT to the process */
-    }
-
-    printf("[CALL] %s ==> %d\n", call, code);
-
-    return code;
-}
-
-#define PRINT_CALL_RESULT(CALL) print_call_result(CALL, #CALL)
+#include "common.h"
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -84,7 +63,6 @@ int main(int argc, char** argv) {
     PRINT_CALL_RESULT(
         listen(sockfd, 128)); /* TODO: What is the best value of backlog in this case? */
 
-#define MAX_EVENTS 16
     struct epoll_event event;
     struct epoll_event polled_events[MAX_EVENTS];
 
@@ -118,7 +96,6 @@ int main(int argc, char** argv) {
             } else {
                 printf("Receiving data from the client with socket fd: %d\n",
                        polled_events[i].data.fd);
-#define RECV_BUFFER_SIZE 1024
                 char buffer[RECV_BUFFER_SIZE];
                 ssize_t recv_buff_len = read(polled_events[i].data.fd, buffer, sizeof(buffer));
                 if (recv_buff_len > 0) {

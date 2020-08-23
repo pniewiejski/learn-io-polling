@@ -1,34 +1,11 @@
-#include <errno.h>
-#include <netinet/in.h> /* Internet address family, see ip(7) and socket(7) */
-#include <signal.h>     /* signal, sigaction */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <sys/select.h>
-#include <sys/socket.h>
-#include <sys/types.h> /* socket, ssize_t, etc. */
-#include <unistd.h>    /* POSIX close, write, read, pipe */
+
+#include "common.h"
 
 #ifndef FD_COPY /* FD_COPY is not defined on Linux */
-#define FD_COPY(fdset_orig, fdset_copy) memcpy((fdset_copy), (fdset_orig), sizeof * (fdset_copy))
+#define FD_COPY(fdset_orig, fdset_copy) memcpy((fdset_copy), (fdset_orig), sizeof *(fdset_copy))
 #endif
-
-int print_call_result(int code, const char* call) {
-    if (code < 0) { /* error */
-        fputs(call, stderr);
-        fprintf(stderr, "\tError: %s\n", strerror(errno));
-        abort(); /* send SIGABRT to the process */
-    }
-
-    printf("[CALL] %s ==> %d\n", call, code);
-
-    return code;
-}
-
-#define PRINT_CALL_RESULT(CALL) print_call_result(CALL, #CALL)
-#define OBSERVED_FDS_POLL 64
-#define RECV_BUFFER_SIZE 1024
-#define UNUSED_FD -1
 
 int main(int argc, char** argv) {
     if (argc < 2) {
