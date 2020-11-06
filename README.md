@@ -13,10 +13,10 @@
 
 ## Why should you care? 🤷‍♂️
 
-I work a lot with **Node.js**. Chances are that you work with node too, or at least used to work
-with it. As you may know, under the hood node uses [libuv](https://github.com/libuv/libuv) to manage
-it's asynchronous I/O operations. It's just one of those things that make node tick. On the `libuv`
-homepage, we may find the list of libuv's key features. One of them is:
+I work a lot with **Node.js**. As you may or may not know, under the hood Node.js uses
+[libuv](https://github.com/libuv/libuv) to manage it's asynchronous I/O operations. It's just one of
+those things that make Node.js tick. On the `libuv` homepage, we may find the list of libuv's key
+features. One of them is:
 
 > Full-featured event loop backed by epoll, kqueue, IOCP, event ports.
 
@@ -27,8 +27,65 @@ OK... so there is something like `epoll`, but what the heck is `kqueue` or `IOCP
 **libuv supports many platforms.** `epoll` itself is a Linux-only feature. BSD uses `kqueue` and
 Windows `IOCP`.
 
-**So if you wish to understand how node.js works internally and you are a Linux enthusiast, you need
-to learn about `epoll`.**
+> The event loop follows the rather usual single threaded asynchronous I/O approach: all (network)
+> I/O is performed on non-blocking sockets which are polled using the best mechanism available on
+> the given platform: epoll on Linux, kqueue on OSX and other BSDs, event ports on SunOS and IOCP on
+> Windows. As part of a loop iteration the loop will block waiting for I/O activity on sockets which
+> have been added to the poller and callbacks will be fired indicating socket conditions (readable,
+> writable hangup) so handles can read, write or perform the desired I/O operation.
+
+👀 You can check it in the
+[source code](https://github.com/libuv/libuv/blob/v1.x/src/unix/linux-core.c#L88).
+
+Or check out this simple example:
+
+```js
+// print.js
+
+async function waitForever() {
+  while (true) {
+    console.log("Linux is awesome!");
+    await new Promise(resolve => {
+      setTimeout(resolve, 5000);
+    });
+  }
+}
+
+waitForever();
+```
+
+Run this simple script with `node print.js` and you will see `"Linux is awesome!"` logged each five
+seconds. Now let's look at the system calls this program does. Run the same script using `strace(1)`
+
+```
+$ strace node print.js
+execve("/usr/bin/node", ["node", "print.js"], [/* 27 vars */]) = 0
+# MORE SYSCALLS...
+epoll_create1(EPOLL_CLOEXEC)            = 3
+# More SYSCALLS...
+open("/home/pi/Desktop/npm-test/print.js", O_RDONLY|O_LARGEFILE|O_CLOEXEC) = 12
+fstat64(12, {st_mode=S_IFREG|0644, st_size=400, ...}) = 0
+read(12, "async function waitForever() {\n "..., 400) = 400
+close(12)                               = 0
+write(9, "Linux is awesome...\n", 20Linux is awesome...
+)   = 20
+cacheflush(0x59b07680, 0x59b077a0, 0, 0x1, 0x7efc75d8) = 0
+epoll_ctl(3, EPOLL_CTL_ADD, 6, {EPOLLIN, {u32=6, u64=42949672966}}) = 0
+epoll_ctl(3, EPOLL_CTL_ADD, 8, {EPOLLIN, {u32=8, u64=42949672968}}) = 0
+epoll_pwait(3, [{EPOLLIN, {u32=8, u64=42949672968}}], 1024, 4996, NULL, 8) = 1
+read(8, "\2\0\0\0\0\0\0\0", 1024)       = 8
+epoll_pwait(3, [], 1024, 4996, NULL, 8) = 0
+write(9, "Linux is awesome...\n", 20Linux is awesome...
+)   = 20
+# THEN EACH 5 SECONDS
+epoll_pwait(3, [], 1024, 0, NULL, 8)    = 0
+epoll_pwait(3, [], 1024, 5000, NULL, 8) = 0
+write(9, "Linux is awesome...\n", 20Linux is awesome...
+)   = 20
+```
+
+**So if you wish to understand what makes Node.js work internally and you are a Linux enthusiast,
+you need to learn about `epoll`.**
 
 ## So what is epoll? 🤨
 
