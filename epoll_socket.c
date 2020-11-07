@@ -12,9 +12,14 @@ int main(int argc, char** argv) {
     /*
      * Override the default handling of the SIGPIPE.
      * This can be done either with signal(2) or sigaction(2)
-     * Note that Linux manual discourages from using signal(2) and encourages sigaction(2) instead.
+     * Note that Linux manual discourages using signal(2) and encourages sigaction(2) instead.
      *
-     * Alternatively signal(SIGPIPE, SIG_IGN) could hae been used.
+     * From signal(2)
+     *    > The behavior of signal() varies across UNIX versions, and has also
+     *    > varied historically across different versions of Linux.  Avoid its
+     *    > use: use sigaction(2) instead.
+     *
+     * Alternatively signal(SIGPIPE, SIG_IGN) could have been used.
      */
     struct sigaction action = {.sa_handler = SIG_IGN};
     sigaction(SIGPIPE, &action, NULL);
@@ -29,8 +34,8 @@ int main(int argc, char** argv) {
      *  https://www.ibm.com/support/knowledgecenter/SSB27U_6.4.0/com.ibm.zvm.v640.kiml0/asonetw.htm
      *  https://www.gnu.org/software/libc/manual/html_node/Byte-Order.html
      *
-     *  Remember that on Linux ports below 1024 are privileged and only process with
-     *  CAP_NET_BIND_SERVICE cab bind to such port.
+     *  Remember that ports below 1024 are privileged and only process with
+     *  CAP_NET_BIND_SERVICE cab bind to such port (See Linux capabilities(7)).
      */
     struct sockaddr_in socket_address;
     socket_address.sin_family = AF_INET;
@@ -86,6 +91,7 @@ int main(int argc, char** argv) {
     while (1) {
         int num_fds = PRINT_CALL_RESULT(epoll_wait(epfd, polled_events, MAX_EVENTS, -1));
         printf("epoll_wait returned %d new events\n", num_fds);
+
         for (int i = 0; i < num_fds; ++i) {
             if (polled_events[i].data.fd == sockfd) {
                 printf("Accepting new incoming connection\n");
@@ -97,7 +103,9 @@ int main(int argc, char** argv) {
                 printf("Receiving data from the client with socket fd: %d\n",
                        polled_events[i].data.fd);
                 char buffer[RECV_BUFFER_SIZE];
+
                 ssize_t recv_buff_len = read(polled_events[i].data.fd, buffer, sizeof(buffer));
+
                 if (recv_buff_len > 0) {
                     printf("Received message: ");
                     fwrite(buffer, recv_buff_len, 1, stdout);
