@@ -55,7 +55,8 @@ waitForever();
 ```
 
 Run this simple script with `node print.js` and you will see `"Linux is awesome!"` logged each five
-seconds. Now let's look at the system calls this program does. Run the same script using `strace(1)`
+seconds. Now let's look at the system calls this program makes. Run the same script using
+`strace(1)`
 
 ```
 $ strace node print.js
@@ -84,13 +85,13 @@ write(9, "Linux is awesome...\n", 20Linux is awesome...
 )   = 20
 ```
 
-**So if you wish to understand what makes Node.js work internally and you are a Linux enthusiast,
-you need to learn about `epoll`.**
+**So if you wish to understand what makes the Node.js' event loop work and you are a Linux
+enthusiast, you need to learn about `epoll`.**
 
 ## So what is epoll? 🤨
 
 If you're looking for a one-sentence explanation then you can think about `epoll` as of a Linux
-kernel system call which allows to manage I/O operations based on an event notification mechanism.
+kernel system call which allows managing I/O operations based on an event notification mechanism.
 
 It's difficult to understand how the `epoll` works without first getting a good grasp of the idea of
 _file descriptors_.
