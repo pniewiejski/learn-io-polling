@@ -49,6 +49,10 @@ int main(int argc, char** argv) {
      * SO_REUSEADDR - for address family AF_INET this indicates that may bind to an address,
      *                unless there is an active listening socket bound to "that" address.
      * SO_REUSEPORT - permit multiple AF_INET sockets to bind to the same socket address.
+     *
+     * There's this nice stackoverflow answer about the difference between SO_REUSEADDR and
+     * SO_REUSEPORT:
+     * https://stackoverflow.com/questions/14388706/how-do-so-reuseaddr-and-so-reuseport-differ#answer-14388707
      */
     PRINT_CALL_RESULT(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)));
 
