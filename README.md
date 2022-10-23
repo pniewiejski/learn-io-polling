@@ -210,10 +210,10 @@ This is where good understanding of the concept of a _file descriptor_ comes in 
 When we think about file descriptors, we usually think about some abstract handle that we use to
 access a file (or a pipe, socket, etc.). And this already is a good intuition. It is something
 _abstract_. Physically its a non-negative integer, generally represented as `int` type. Usually when
-created (eg. by a `open(2)` syscall) it will be the lowest (lowest number) file descriptor not
+created (eg. by `open(2)` syscall) it will be the lowest (lowest number) file descriptor not
 currently open for the process.
 
-When a `open(2)` is called a file descriptor is returned but underneath a new **file description**
+When `open(2)` is called a file descriptor is returned but underneath a new **file description**
 is created. **File description** is a system-wide table of open files, sometimes referred to as
 _file table_. The file description keeps information of the file status _flags_, access mode (e.g.
 write-only, read-only, read-write), the opened file's, reference to _inode_ for that file. _offset_.
@@ -224,7 +224,7 @@ to refer to a different file) it does not affect the _file descriptor_ - _file d
 reference.
 
 Keep in mind that **many file descriptors can point to a single file description**. This is for
-instance when a file descriptor is duplicated using a `dup(2)` syscall. The duplicated file
+instance when a file descriptor is duplicated using `dup(2)` syscall. The duplicated file
 descriptor refers to the same open file description. As a consequence, both file descriptors will
 share the file's offset and status flags. The same behavior can be observed between two processes. A
 child process created with `fork(2)` will inherit duplicates of the parent's file descriptors.
