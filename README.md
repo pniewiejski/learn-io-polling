@@ -1,4 +1,4 @@
-# Learn about I/O polling on Linux
+# Learn about I/O polling in Linux
 
 ![C build](https://github.com/pniewiejski/learn-io-polling/workflows/C%20build/badge.svg)
 
