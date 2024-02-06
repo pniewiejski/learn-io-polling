@@ -9,7 +9,7 @@
 2. Create a minimalistic application which serves as an example of how Linux `epoll` can be used. A
    good example would be a simple TCP sever using `socket(2)`. Server _waits_ until there is some
    data to be read and then writes a response. It should be a similar application to the one
-   presented by Sam Roberts (see _#Sources_).
+   presented by Sam Roberts (see [_#Sources_](#sources-)).
 
 ## Why should you care? 🤷‍♂️
 
@@ -194,7 +194,7 @@ It is worth to point out that the `data` field of the `epoll_event` will have th
 set with `epoll_ctl`.
 
 In case of success, `epoll_wait` will return the number of file descriptors ready for requested I/O
-operation. (👉 Remember that in `epoll_event` we had to specify what typo of I/O are we interested
+operation. (👉 Remember that in `epoll_event` we had to specify what type of I/O are we interested
 in.) In case of an error the value of -1 is returned.
 
 ## Things to 🐻 in 🧠
@@ -228,7 +228,7 @@ instance when a file descriptor is duplicated using `dup(2)` syscall. The duplic
 descriptor refers to the same open file description. As a consequence, both file descriptors will
 share the file's offset and status flags. The same behavior can be observed between two processes. A
 child process created with `fork(2)` will inherit duplicates of the parent's file descriptors.
-**This means that child's file descriptors will refer to the same file descriptions as patent's file
+**This means that child's file descriptors will refer to the same file descriptions as parent's file
 descriptors.** This is why sometimes we want to mark our file descriptors with `O_CLOEXEC` flag, so
 that file descriptors are closed once a forked process execs.
 
@@ -241,7 +241,7 @@ _Figure from "The Linux Programming Interface" by Michael Kerrisk_: <img
     src="./docs/Linux_fd.png"
 />
 
-👉 On Linux you cat see open file descriptors of a process in `/proc/[pid]/fd`. In
+👉 On Linux you can see open file descriptors of a process in `/proc/[pid]/fd`. In
 `/proc/[pid]/fdinfo` you can find the value of _offset_, _flags_ (status flags), and _mnt_id_ (mount
 point).
 
