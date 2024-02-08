@@ -194,7 +194,7 @@ It is worth to point out that the `data` field of the `epoll_event` will have th
 set with `epoll_ctl`.
 
 In case of success, `epoll_wait` will return the number of file descriptors ready for requested I/O
-operation. (👉 Remember that in `epoll_event` we had to specify what type of I/O are we interested
+operation. (👉 Remember that in `epoll_event` we had to specify what type of I/O we're interested
 in.) In case of an error the value of -1 is returned.
 
 ## Things to 🐻 in 🧠
